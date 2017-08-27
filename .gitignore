@@ -1,5 +1,5 @@
 # Intellij Idea
-*workspace.xml
+*.idea/
 
 # Compiled class file
 *.class
