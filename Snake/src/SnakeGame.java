@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SnakeGame extends JFrame {
-    public static final int WIDTH = 800, HEIGHT = 600;
+    public static final int WIDTH = 800, HEIGHT = 650;
     GamePanel gamePanel = new GamePanel();
 
     public SnakeGame() {
@@ -74,8 +74,8 @@ class GamePanel extends JPanel {
         int x, y;
         random:
         while(true) {
-            x = (int) (Math.random() * 600 / 15) * 15;
-            y = (int) (Math.random() * 600 / 15) * 15;
+            x = (int) (Math.random() * (600-15) / 15) * 15;
+            y = (int) (Math.random() * (600-15) / 15) * 15;
             for (SNode tempNode : snake.snakeArray) {
                 if (tempNode.x == x && tempNode.y == y) {
                     continue random;
