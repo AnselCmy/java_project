@@ -1,43 +1,60 @@
 package CS;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.*;
 import java.net.*;
 
 public class Client {
     Socket clientSocket;
     // the reader to read the msg from server
-    BufferedReader bufferedReader;
+    BufferedReader bufferedReader = null;
     // write msg to server
-    BufferedWriter bufferedWriter;
+    BufferedWriter bufferedWriter = null;
+    // pull msg from server
+    JTextArea outputText;
+    String currMsg = "";
+    boolean ifChange = false;
 
-    public Client(String host, int port) {
+    public Client(String host, int port, JTextArea outputText) {
         try {
             // init the socket in client end
             clientSocket = new Socket(host, port);
             clientSocket.setSoTimeout(10000);
+            this.outputText = outputText;
             bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             bufferedWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+            new pullThread().start();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void writeToServer(String msg) {
-        try {
-            bufferedWriter.write(msg);
-            bufferedWriter.newLine();
-            bufferedWriter.flush();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Protocol.writeToSocket(msg, bufferedWriter);
     }
 
     public String readFromServer() {
-        try {
-            return bufferedReader.readLine();
-        } catch (Exception e) {
-            e.printStackTrace();
+        return Protocol.readFromSocket(bufferedReader);
+    }
+
+    public class pullThread extends Thread {
+        final long timeInterval = 100;
+
+        @Override
+        public void run() {
+            while (true) {
+                if (bufferedReader != null && bufferedWriter != null && outputText != null) {
+                    writeToServer("(REQUEST)\n(END)");
+                    currMsg = readFromServer();
+                    outputText.setText(currMsg);
+                }
+                try {
+                    Thread.sleep(timeInterval);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
-        return "error";
     }
 }

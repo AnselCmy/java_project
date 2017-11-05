@@ -1,20 +1,44 @@
 package CS;
 
 import javax.swing.*;
+import javax.swing.text.DefaultCaret;
 
 public class ClientView {
     private JPanel clientPanel;
-    private JTextPane inputText;
     private JButton submitBtn;
-    Client client;
+    private JTextField hostInput;
+    private JTextField portInput;
+    private JButton connectBtn;
+    private JTextArea inputText;
+    private JTextArea outputText;
+    Client client = null;
 
     public ClientView() {
-        client = new Client("127.0.0.1", 2333);
-
+        // maintain the scroll always at last
+        DefaultCaret caret = (DefaultCaret)outputText.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+        // default value for host and port
+        hostInput.setText("127.0.0.1");
+        portInput.setText("2333");
+        // btn action
+        connectBtn.addActionListener(e -> {
+            String host = hostInput.getText();
+            int port = Integer.valueOf(portInput.getText());
+            // init this client
+            client = new Client(host, port, outputText);
+        });
         submitBtn.addActionListener(e -> {
-            client.writeToServer(inputText.getText());
+            // wrap the text from input by protocol and sent to server
+            client.writeToServer(Protocol.wrapText(inputText.getText()));
+            // clean the text pane
+            cleanInput();
+            // get the return msg from server
             String msgFromServer = client.readFromServer();
         });
+    }
+
+    public void cleanInput() {
+        inputText.setText("");
     }
 
     public static void main(String[] args) {

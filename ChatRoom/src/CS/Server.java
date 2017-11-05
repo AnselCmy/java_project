@@ -21,7 +21,7 @@ public class Server {
 
     public synchronized void writeToTextArea(String msg) {
         StringBuffer str = new StringBuffer(textArea.getText());
-        str.append(msg);
+        str.append(msg+"\n");
         textArea.setText(str.toString());
     }
 
@@ -48,22 +48,11 @@ public class Server {
         }
 
         public void writeToClient(String msg) {
-            try {
-                bufferedWriter.write(msg);
-                bufferedWriter.newLine();
-                bufferedWriter.flush();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            Protocol.writeToSocket(msg, bufferedWriter);
         }
 
         public String readFromClient() {
-            try {
-                return bufferedReader.readLine();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return "error";
+            return Protocol.readFromSocket(bufferedReader);
         }
 
         @Override
@@ -73,15 +62,26 @@ public class Server {
                     System.out.println("Thread is waiting!!!");
                     // get the string from the client socket
                     String msgFromClient = readFromClient();
+                    System.out.println("Server: " + msgFromClient);
+                    // if get null from client, the close socket and interrupt the thread
+                    if (msgFromClient.equals("ERROR")) {
+                        clientSocket.close();
+                        interrupt();
+                        continue;
+                    }
+                    if (msgFromClient.equals("(REQUEST)")) {
+                        writeToClient(Protocol.wrapReponse(textArea.getText()));
+                        continue;
+                    }
+//                    System.out.println(msgFromClient);
                     // write msg to server's textArea
                     writeToTextArea(msgFromClient);
                     // send "OK" back to client to conform
-                    writeToClient("OK");
+                    writeToClient("(TIME)(TEXT)OK\n(END)");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-
     }
 }
