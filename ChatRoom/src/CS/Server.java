@@ -8,9 +8,11 @@ public class Server {
     // the socket to listen for client
     ServerSocket serverSocket;
     JTextArea textArea;
+    DefaultListModel userListModel;
 
-    public Server(int port, JTextArea textArea) {
+    public Server(int port, JTextArea textArea, DefaultListModel userListModel) {
         this.textArea = textArea;
+        this.userListModel = userListModel;
         try {
             // init the socket
             this.serverSocket = new ServerSocket(port);
@@ -36,6 +38,8 @@ public class Server {
         // reader and writer of client socket
         BufferedReader bufferedReader;
         BufferedWriter bufferedWriter;
+        // the info of this client
+        String userName;
 
         public ServerThread(Socket client) {
             this.clientSocket = client;
@@ -65,12 +69,22 @@ public class Server {
                     System.out.println("Server: " + msgFromClient);
                     // if get null from client, the close socket and interrupt the thread
                     if (msgFromClient.equals("ERROR")) {
+                        if (userListModel.contains(userName)) {
+                            userListModel.removeElement(userName);
+                            writeToTextArea("[LOG]" + userName + " is offline!\n");
+                        }
                         clientSocket.close();
                         interrupt();
                         continue;
                     }
                     if (msgFromClient.equals("(REQUEST)")) {
-                        writeToClient(Protocol.wrapReponse(textArea.getText()));
+                        writeToClient(Protocol.wrapResponse(textArea.getText()));
+                        continue;
+                    }
+                    if (msgFromClient.contains("(USERNAME)")) {
+                        userName = msgFromClient.substring("(USERNAME)".length(), msgFromClient.length());
+                        writeToTextArea("[LOG]" + userName + " is online!\n");
+                        userListModel.addElement(userName);
                         continue;
                     }
 //                    System.out.println(msgFromClient);

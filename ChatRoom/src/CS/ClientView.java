@@ -13,7 +13,7 @@ public class ClientView {
     private JTextArea outputText;
     Client client = null;
 
-    public ClientView() {
+    public ClientView(String userName) {
         // maintain the scroll always at last
         DefaultCaret caret = (DefaultCaret)outputText.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
@@ -26,10 +26,11 @@ public class ClientView {
             int port = Integer.valueOf(portInput.getText());
             // init this client
             client = new Client(host, port, outputText);
+            client.writeToServer( Protocol.wrapUserName(userName));
         });
         submitBtn.addActionListener(e -> {
             // wrap the text from input by protocol and sent to server
-            client.writeToServer(Protocol.wrapText(inputText.getText()));
+            client.writeToServer(Protocol.wrapText(inputText.getText(), userName));
             // clean the text pane
             cleanInput();
             // get the return msg from server
@@ -42,9 +43,11 @@ public class ClientView {
     }
 
     public static void main(String[] args) {
+        String userName = args[0];
         // init the frame
         JFrame frame = new JFrame("ClientView");
-        frame.setContentPane(new ClientView().clientPanel);
+        frame.setTitle(userName);
+        frame.setContentPane(new ClientView(userName).clientPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);

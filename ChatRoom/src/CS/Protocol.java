@@ -15,24 +15,30 @@ public class Protocol {
         if (msg.contains("(RESPONSE")) {
             return msg.substring("(RESPONSE)".length(), msg.length());
         }
-        else {
-            HashMap<String, String> rst = new HashMap<>();
-            int timeIdx = msg.indexOf("(TIME)");
-            int textIdx = msg.indexOf("(TEXT)");
-            rst.put("TIME", msg.substring(timeIdx + 6, textIdx));
-            rst.put("TEXT", msg.substring(textIdx + 6, msg.length()));
-            return rst.get("TIME") + rst.get("TEXT");
+        if (msg.contains("(USERNAME)")) {
+            return msg.substring(0, msg.length()-1);
         }
+
+        HashMap<String, String> rst = new HashMap<>();
+        int timeIdx = msg.indexOf("(TIME)");
+        int textIdx = msg.indexOf("(TEXT)");
+        rst.put("TIME", msg.substring(timeIdx + 6, textIdx));
+        rst.put("TEXT", msg.substring(textIdx + 6, msg.length()));
+        return rst.get("TIME") + rst.get("TEXT");
     }
 
-    static public String wrapText(String text) {
+    static public String wrapText(String text, String useName) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String time = simpleDateFormat.format(new Date());
-        return "(TIME)" + time + "\n" + "(TEXT)" + text + "\n" + "(END)";
+        return "(TIME)" + "[" + useName + "] " +time + "\n" + "(TEXT)" + text + "\n" + "(END)";
     }
 
-    static public String wrapReponse(String response) {
-        return "(RESPONSE)" + response + "\n" + "(END)";
+    static public String wrapResponse(String response) {
+        return "(RESPONSE)" + response + "\n(END)";
+    }
+
+    static public String wrapUserName(String userName) {
+        return "(USERNAME)" + userName + "\n(END)";
     }
 
     public static void writeToSocket(String msg, BufferedWriter bufferedWriter) {
