@@ -2,6 +2,8 @@ package CS;
 
 import javax.swing.*;
 import javax.swing.text.DefaultCaret;
+import javax.swing.text.Document;
+import java.awt.*;
 
 public class ClientView {
     private JPanel clientPanel;
@@ -11,12 +13,15 @@ public class ClientView {
     private JButton connectBtn;
     private JTextArea inputText;
     private JTextArea outputText;
+    private JScrollPane messageScrollPane;
+    private JScrollPane chatLogScrollPane;
     Client client = null;
 
     public ClientView(String userName) {
         // maintain the scroll always at last
-        DefaultCaret caret = (DefaultCaret)outputText.getCaret();
-        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+//        DefaultCaret caret = (DefaultCaret)outputText.getCaret();
+//        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+//        outputText.setCaretPosition(outputText.getDocument().getLength());
         // default value for host and port
         hostInput.setText("127.0.0.1");
         portInput.setText("2333");

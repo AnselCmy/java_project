@@ -1,7 +1,6 @@
 package CS;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.*;
 import java.net.*;
 
@@ -40,6 +39,8 @@ public class Client {
 
     public class pullThread extends Thread {
         final long timeInterval = 100;
+        int oldLength = 0;
+        int newLength = 0;
 
         @Override
         public void run() {
@@ -48,6 +49,11 @@ public class Client {
                     writeToServer("(REQUEST)\n(END)");
                     currMsg = readFromServer();
                     outputText.setText(currMsg);
+                    newLength = outputText.getDocument().getLength();
+                    if (newLength != oldLength) {
+                        outputText.setCaretPosition(outputText.getDocument().getLength());
+                        oldLength = newLength;
+                    }
                 }
                 try {
                     Thread.sleep(timeInterval);

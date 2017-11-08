@@ -56,7 +56,7 @@ class StartPanel extends JPanel {
 }
 
 class BlockGrids extends JPanel {
-    int num = 2;
+    int num = 3;
     JButton [][]btn = new JButton[num][num];
     int [][]btnNum = new int[num][num];
     public BlockGrids() {
